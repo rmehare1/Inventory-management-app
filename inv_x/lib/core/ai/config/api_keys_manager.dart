@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Manages API keys for all AI providers using encrypted secure storage.
 class ApiKeysManager {
@@ -30,30 +31,32 @@ class ApiKeysManager {
     final keys = await getKeys(provider);
     if (!keys.contains(key)) {
       keys.add(key);
-      await _storage.write(
-        key: _storageKey(provider),
-        value: jsonEncode(keys),
-      );
+      await _storage.write(key: _storageKey(provider), value: jsonEncode(keys));
     }
   }
 
   /// Save multiple keys at once (replaces all keys).
   Future<void> saveKeys(String provider, List<String> keys) async {
-    await _storage.write(
-      key: _storageKey(provider),
-      value: jsonEncode(keys),
-    );
+    await _storage.write(key: _storageKey(provider), value: jsonEncode(keys));
   }
 
   /// Retrieve all keys for a provider.
   Future<List<String>> getKeys(String provider) async {
     final raw = await _storage.read(key: _storageKey(provider));
-    if (raw == null || raw.isEmpty) return [];
-    try {
-      return List<String>.from(jsonDecode(raw) as List);
-    } catch (_) {
-      return [];
+    if (raw != null && raw.isNotEmpty) {
+      try {
+        final parsed = List<String>.from(jsonDecode(raw) as List);
+        if (parsed.isNotEmpty) return parsed;
+      } catch (_) {}
     }
+
+    // Fallback to .env if Secure Storage has nothing
+    final envKey = dotenv.env['${provider.toUpperCase()}_API_KEY'];
+    if (envKey != null && envKey.trim().isNotEmpty) {
+      return [envKey.trim()];
+    }
+
+    return [];
   }
 
   /// Get the first available key for a provider.

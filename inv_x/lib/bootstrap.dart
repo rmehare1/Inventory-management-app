@@ -5,12 +5,16 @@ import 'data/hive/hive_initializer.dart';
 import 'data/hive/app_settings_model.dart';
 import 'data/seed/seed_data_generator.dart';
 import 'core/ai/ai_engine.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Initializes all app-level services before [runApp].
 ///
 /// Call `await bootstrap()` in `main()`.
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
 
   // Lock to portrait on mobile
   await SystemChrome.setPreferredOrientations([
