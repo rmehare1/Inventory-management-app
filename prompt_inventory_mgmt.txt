@@ -1,0 +1,2132 @@
+=============================================================
+PROJECT: INV-X — AI-Powered Autonomous Inventory Management
+PLATFORM: Flutter (Android + iOS + Web + Desktop)
+ARCHITECTURE: Clean Architecture + Riverpod + Hive
+AI ENGINE: 8-Provider Cascading Fallback (Local→Free→Paid)
+=============================================================
+
+You are a senior Flutter developer building a production-grade
+AI-powered inventory management system called "INV-X".
+
+This is NOT a basic CRUD app. This is an AUTONOMOUS AI 
+inventory system that THINKS, PREDICTS, SEES (camera), 
+TALKS (chat), and ACTS on its own — with a multi-tier AI 
+fallback engine that cascades from local → free APIs → 
+paid APIs automatically.
+
+=============================================================
+TECH STACK (STRICT — USE ONLY THESE)
+=============================================================
+
+Frontend:        Flutter 3.24+ (Dart 3.5+)
+State Mgmt:      Riverpod 2.0 (with code generation)
+Local DB:        Hive + Isar (for vector-like search)
+Secure Storage:  flutter_secure_storage
+HTTP:            dio (with interceptors + retry)
+Charts:          fl_chart
+Camera:          camera + google_mlkit
+OCR:             google_ml_kit (on-device)
+TFLite:          tflite_flutter (on-device AI)
+Animations:      flutter_animate + lottie
+Theme:           Dark mode (primary: deep purple/blue gradient)
+Router:          go_router
+PDF:             pdf + printing
+Excel:           excel
+Notifications:   flutter_local_notifications
+Voice:           speech_to_text + flutter_tts
+Barcode:         mobile_scanner
+Icons:           phosphor_flutter or hugeicons
+
+
+=============================================================
+FOLDER STRUCTURE (CLEAN ARCHITECTURE — COMPLETE)
+=============================================================
+
+lib/
+├── main.dart
+├── app.dart
+├── bootstrap.dart                      # App initialization
+│
+├── core/
+│   ├── theme/
+│   │   ├── app_theme.dart
+│   │   ├── app_colors.dart
+│   │   ├── app_text_styles.dart
+│   │   └── app_decorations.dart        # Glass cards, neon borders
+│   │
+│   ├── constants/
+│   │   ├── app_constants.dart
+│   │   ├── hive_boxes.dart
+│   │   └── asset_paths.dart
+│   │
+│   ├── utils/
+│   │   ├── extensions.dart
+│   │   ├── helpers.dart
+│   │   ├── date_utils.dart
+│   │   ├── currency_formatter.dart
+│   │   ├── id_generator.dart           # UUID generation
+│   │   └── validators.dart
+│   │
+│   ├── router/
+│   │   ├── app_router.dart
+│   │   └── route_transitions.dart
+│   │
+│   ├── widgets/
+│   │   ├── glass_card.dart
+│   │   ├── neon_button.dart
+│   │   ├── gradient_button.dart
+│   │   ├── animated_counter.dart
+│   │   ├── shimmer_loading.dart
+│   │   ├── gradient_text.dart
+│   │   ├── status_badge.dart
+│   │   ├── tier_badge.dart             # FREE/PAID badge
+│   │   ├── empty_state_widget.dart
+│   │   ├── error_state_widget.dart
+│   │   ├── custom_app_bar.dart
+│   │   ├── search_field.dart
+│   │   ├── confirmation_dialog.dart
+│   │   └── snackbar_helper.dart
+│   │
+│   └── ai/
+│       ├── ai_engine.dart
+│       ├── fallback_manager.dart
+│       │
+│       ├── models/
+│       │   ├── ai_request.dart
+│       │   ├── ai_response.dart
+│       │   ├── ai_context.dart
+│       │   ├── provider_health.dart
+│       │   └── ai_call_log.dart
+│       │
+│       ├── providers/
+│       │   ├── base_provider.dart       # Abstract
+│       │   ├── ollama_provider.dart     # LOCAL  — Tier 1
+│       │   ├── groq_provider.dart       # FREE   — Tier 2
+│       │   ├── openrouter_provider.dart # FREE   — Tier 2
+│       │   ├── huggingface_provider.dart# FREE   — Tier 2
+│       │   ├── together_provider.dart   # FREE   — Tier 2
+│       │   ├── cohere_provider.dart     # FREE   — Tier 2
+│       │   ├── gemini_provider.dart     # PAID   — Tier 3
+│       │   └── openai_provider.dart     # PAID   — Tier 3
+│       │
+│       ├── config/
+│       │   ├── api_keys_manager.dart
+│       │   └── provider_registry.dart
+│       │
+│       └── utils/
+│           ├── circuit_breaker.dart
+│           ├── rate_limiter.dart
+│           ├── key_rotator.dart
+│           ├── response_normalizer.dart
+│           ├── cost_tracker.dart
+│           └── ai_logger.dart
+│
+├── features/
+│   │
+│   ├── onboarding/
+│   │   └── presentation/
+│   │       ├── screens/
+│   │       │   ├── splash_screen.dart
+│   │       │   ├── onboarding_screen.dart
+│   │       │   └── api_setup_screen.dart    # First-time key setup
+│   │       └── widgets/
+│   │           ├── onboarding_page.dart
+│   │           └── key_input_card.dart
+│   │
+│   ├── auth/
+│   │   ├── data/
+│   │   │   ├── models/user_model.dart
+│   │   │   └── repositories/auth_repository.dart
+│   │   └── presentation/
+│   │       ├── screens/
+│   │       │   ├── login_screen.dart
+│   │       │   └── register_screen.dart
+│   │       ├── widgets/auth_form.dart
+│   │       └── providers/auth_provider.dart
+│   │
+│   ├── dashboard/
+│   │   ├── data/
+│   │   │   ├── models/dashboard_stats.dart
+│   │   │   └── repositories/dashboard_repository.dart
+│   │   └── presentation/
+│   │       ├── screens/dashboard_screen.dart
+│   │       ├── widgets/
+│   │       │   ├── stats_row.dart
+│   │       │   ├── stat_card.dart
+│   │       │   ├── ai_insight_card.dart
+│   │       │   ├── sales_chart_card.dart
+│   │       │   ├── category_pie_card.dart
+│   │       │   ├── low_stock_alert_card.dart
+│   │       │   ├── recent_activity_card.dart
+│   │       │   ├── provider_health_mini.dart
+│   │       │   └── quick_actions_grid.dart
+│   │       └── providers/dashboard_provider.dart
+│   │
+│   ├── inventory/
+│   │   ├── data/
+│   │   │   ├── models/
+│   │   │   │   ├── product_model.dart
+│   │   │   │   ├── category_model.dart
+│   │   │   │   ├── stock_movement_model.dart
+│   │   │   │   └── batch_model.dart
+│   │   │   ├── repositories/
+│   │   │   │   ├── product_repository.dart
+│   │   │   │   └── category_repository.dart
+│   │   │   └── datasources/
+│   │   │       └── inventory_local_ds.dart
+│   │   └── presentation/
+│   │       ├── screens/
+│   │       │   ├── inventory_list_screen.dart
+│   │       │   ├── product_detail_screen.dart
+│   │       │   ├── add_product_screen.dart
+│   │       │   ├── edit_product_screen.dart
+│   │       │   ├── category_screen.dart
+│   │       │   ├── stock_adjust_screen.dart
+│   │       │   └── smart_scan_screen.dart
+│   │       ├── widgets/
+│   │       │   ├── product_card.dart
+│   │       │   ├── product_list_tile.dart
+│   │       │   ├── stock_level_bar.dart
+│   │       │   ├── expiry_badge.dart
+│   │       │   ├── category_chip.dart
+│   │       │   ├── filter_sheet.dart
+│   │       │   ├── sort_options.dart
+│   │       │   └── batch_timeline.dart
+│   │       └── providers/
+│   │           ├── inventory_provider.dart
+│   │           ├── search_provider.dart
+│   │           ├── filter_provider.dart
+│   │           └── category_provider.dart
+│   │
+│   ├── ai_chat/
+│   │   ├── data/
+│   │   │   ├── models/chat_message_model.dart
+│   │   │   └── repositories/chat_repository.dart
+│   │   └── presentation/
+│   │       ├── screens/ai_chat_screen.dart
+│   │       ├── widgets/
+│   │       │   ├── chat_bubble.dart
+│   │       │   ├── user_bubble.dart
+│   │       │   ├── ai_bubble.dart
+│   │       │   ├── provider_info_badge.dart
+│   │       │   ├── typing_indicator.dart
+│   │       │   ├── quick_action_chips.dart
+│   │       │   ├── voice_input_fab.dart
+│   │       │   ├── chat_input_field.dart
+│   │       │   └── ai_action_buttons.dart
+│   │       └── providers/chat_provider.dart
+│   │
+│   ├── ai_forecast/
+│   │   ├── data/
+│   │   │   ├── models/forecast_model.dart
+│   │   │   └── repositories/forecast_repository.dart
+│   │   └── presentation/
+│   │       ├── screens/forecast_screen.dart
+│   │       ├── widgets/
+│   │       │   ├── forecast_line_chart.dart
+│   │       │   ├── confidence_band.dart
+│   │       │   ├── trend_indicator.dart
+│   │       │   ├── restock_suggestion_card.dart
+│   │       │   └── product_selector.dart
+│   │       └── providers/forecast_provider.dart
+│   │
+│   ├── ai_anomaly/
+│   │   ├── data/
+│   │   │   ├── models/anomaly_model.dart
+│   │   │   └── repositories/anomaly_repository.dart
+│   │   └── presentation/
+│   │       ├── screens/anomaly_screen.dart
+│   │       ├── widgets/
+│   │       │   ├── anomaly_card.dart
+│   │       │   ├── severity_indicator.dart
+│   │       │   ├── anomaly_timeline.dart
+│   │       │   └── resolve_dialog.dart
+│   │       └── providers/anomaly_provider.dart
+│   │
+│   ├── suppliers/
+│   │   ├── data/
+│   │   │   ├── models/supplier_model.dart
+│   │   │   └── repositories/supplier_repository.dart
+│   │   └── presentation/
+│   │       ├── screens/
+│   │       │   ├── supplier_list_screen.dart
+│   │       │   ├── supplier_detail_screen.dart
+│   │       │   ├── add_supplier_screen.dart
+│   │       │   └── ai_negotiate_screen.dart
+│   │       ├── widgets/
+│   │       │   ├── supplier_card.dart
+│   │       │   ├── reliability_score.dart
+│   │       │   ├── price_comparison.dart
+│   │       │   └── negotiation_result.dart
+│   │       └── providers/supplier_provider.dart
+│   │
+│   ├── orders/
+│   │   ├── data/
+│   │   │   ├── models/
+│   │   │   │   ├── purchase_order_model.dart
+│   │   │   │   └── order_item_model.dart
+│   │   │   └── repositories/order_repository.dart
+│   │   └── presentation/
+│   │       ├── screens/
+│   │       │   ├── orders_list_screen.dart
+│   │       │   ├── create_order_screen.dart
+│   │       │   └── order_detail_screen.dart
+│   │       ├── widgets/
+│   │       │   ├── order_card.dart
+│   │       │   ├── order_status_stepper.dart
+│   │       │   ├── order_item_tile.dart
+│   │       │   └── ai_order_suggestion.dart
+│   │       └── providers/order_provider.dart
+│   │
+│   ├── reports/
+│   │   ├── data/
+│   │   │   ├── models/report_data_model.dart
+│   │   │   └── repositories/report_repository.dart
+│   │   └── presentation/
+│   │       ├── screens/
+│   │       │   ├── reports_hub_screen.dart
+│   │       │   ├── inventory_report_screen.dart
+│   │       │   ├── sales_report_screen.dart
+│   │       │   ├── expiry_report_screen.dart
+│   │       │   ├── supplier_report_screen.dart
+│   │       │   ├── ai_usage_report_screen.dart
+│   │       │   └── ai_business_report_screen.dart
+│   │       ├── widgets/
+│   │       │   ├── report_chart.dart
+│   │       │   ├── kpi_card.dart
+│   │       │   ├── report_table.dart
+│   │       │   └── export_options.dart
+│   │       └── providers/report_provider.dart
+│   │
+│   ├── scanner/
+│   │   └── presentation/
+│   │       ├── screens/
+│   │       │   ├── barcode_scan_screen.dart
+│   │       │   ├── shelf_scan_screen.dart
+│   │       │   └── photo_add_screen.dart
+│   │       ├── widgets/
+│   │       │   ├── scan_overlay.dart
+│   │       │   ├── scan_result_card.dart
+│   │       │   └── ai_fill_preview.dart
+│   │       └── providers/scanner_provider.dart
+│   │
+│   ├── warehouse/
+│   │   └── presentation/
+│   │       ├── screens/warehouse_view_screen.dart
+│   │       ├── widgets/
+│   │       │   ├── warehouse_grid.dart
+│   │       │   ├── shelf_cell.dart
+│   │       │   ├── zone_legend.dart
+│   │       │   └── heatmap_overlay.dart
+│   │       └── providers/warehouse_provider.dart
+│   │
+│   └── settings/
+│       └── presentation/
+│           ├── screens/
+│           │   ├── settings_screen.dart
+│           │   ├── ai_config_screen.dart
+│           │   ├── provider_health_screen.dart
+│           │   ├── api_keys_screen.dart
+│           │   ├── cost_tracker_screen.dart
+│           │   ├── profile_screen.dart
+│           │   ├── backup_restore_screen.dart
+│           │   └── about_screen.dart
+│           ├── widgets/
+│           │   ├── provider_key_card.dart
+│           │   ├── provider_status_tile.dart
+│           │   ├── cost_chart.dart
+│           │   ├── daily_limit_slider.dart
+│           │   └── theme_toggle.dart
+│           └── providers/settings_provider.dart
+│
+├── data/
+│   ├── seed/
+│   │   └── seed_data_generator.dart     # Generates 50+ demo products
+│   └── hive/
+│       ├── hive_initializer.dart
+│       └── hive_adapters.dart
+│
+└── gen/
+
+
+=============================================================
+DATABASE SCHEMA (HIVE BOXES — COMPLETE)
+=============================================================
+
+// ────────────────────────────────
+// Box: 'products' (TypeId: 0)
+// ────────────────────────────────
+@HiveType(typeId: 0)
+class ProductModel extends HiveObject {
+  @HiveField(0)  late String id;
+  @HiveField(1)  late String name;
+  @HiveField(2)  late String description;
+  @HiveField(3)  late String sku;
+  @HiveField(4)  String? barcode;
+  @HiveField(5)  late String categoryId;
+  @HiveField(6)  late double costPrice;
+  @HiveField(7)  late double sellingPrice;
+  @HiveField(8)  late int currentStock;
+  @HiveField(9)  late int minimumStock;
+  @HiveField(10) late int maximumStock;
+  @HiveField(11) late String unit;         // 'pcs','kg','liters','boxes'
+  @HiveField(12) String? imagePath;
+  @HiveField(13) String? supplierId;
+  @HiveField(14) DateTime? expiryDate;
+  @HiveField(15) late DateTime createdAt;
+  @HiveField(16) late DateTime updatedAt;
+  @HiveField(17) String? batchNumber;
+  @HiveField(18) String? warehouseLocation;
+  @HiveField(19) late List<String> tags;
+  @HiveField(20) late bool isActive;
+  @HiveField(21) double? weight;
+  @HiveField(22) Map<String, dynamic>? customFields;
+
+  // Computed
+  double get profitMargin => 
+    sellingPrice > 0 ? ((sellingPrice - costPrice) / sellingPrice * 100) : 0;
+  bool get isLowStock => currentStock <= minimumStock;
+  bool get isExpiringSoon => expiryDate != null && 
+    expiryDate!.difference(DateTime.now()).inDays <= 7;
+  bool get isExpired => expiryDate != null && 
+    expiryDate!.isBefore(DateTime.now());
+  double get stockValue => currentStock * costPrice;
+  double get stockPercentage => 
+    maximumStock > 0 ? (currentStock / maximumStock * 100).clamp(0, 100) : 0;
+}
+
+// ────────────────────────────────
+// Box: 'categories' (TypeId: 1)
+// ────────────────────────────────
+@HiveType(typeId: 1)
+class CategoryModel extends HiveObject {
+  @HiveField(0) late String id;
+  @HiveField(1) late String name;
+  @HiveField(2) late String emoji;        // '📱','🥫','👕'
+  @HiveField(3) late String colorHex;     // '#FF5733'
+  @HiveField(4) String? parentId;
+  @HiveField(5) late DateTime createdAt;
+}
+
+// ────────────────────────────────
+// Box: 'suppliers' (TypeId: 2)
+// ────────────────────────────────
+@HiveType(typeId: 2)
+class SupplierModel extends HiveObject {
+  @HiveField(0) late String id;
+  @HiveField(1) late String name;
+  @HiveField(2) String? email;
+  @HiveField(3) String? phone;
+  @HiveField(4) String? address;
+  @HiveField(5) late double reliabilityScore;
+  @HiveField(6) late double avgDeliveryDays;
+  @HiveField(7) late List<String> productIds;
+  @HiveField(8) late DateTime createdAt;
+  @HiveField(9) String? notes;
+}
+
+// ────────────────────────────────
+// Box: 'stock_movements' (TypeId: 3)
+// ────────────────────────────────
+@HiveType(typeId: 3)
+class StockMovementModel extends HiveObject {
+  @HiveField(0) late String id;
+  @HiveField(1) late String productId;
+  @HiveField(2) late String type;        // 'IN','OUT','ADJUST','RETURN','DAMAGE'
+  @HiveField(3) late int quantity;
+  @HiveField(4) late int previousStock;
+  @HiveField(5) late int newStock;
+  @HiveField(6) String? reason;
+  @HiveField(7) String? referenceId;
+  @HiveField(8) late DateTime timestamp;
+  @HiveField(9) bool isAnomalous = false;
+  @HiveField(10) String? anomalyReason;
+}
+
+// ────────────────────────────────
+// Box: 'purchase_orders' (TypeId: 4)
+// ────────────────────────────────
+@HiveType(typeId: 4)
+class PurchaseOrderModel extends HiveObject {
+  @HiveField(0) late String id;
+  @HiveField(1) late String supplierId;
+  @HiveField(2) late List<OrderItemModel> items;
+  @HiveField(3) late double totalAmount;
+  @HiveField(4) late String status;
+  @HiveField(5) late DateTime orderDate;
+  @HiveField(6) DateTime? expectedDelivery;
+  @HiveField(7) DateTime? receivedDate;
+  @HiveField(8) bool isAiGenerated = false;
+  @HiveField(9) String? aiReason;
+}
+
+// ────────────────────────────────
+// TypeId: 5
+// ────────────────────────────────
+@HiveType(typeId: 5)
+class OrderItemModel extends HiveObject {
+  @HiveField(0) late String productId;
+  @HiveField(1) late String productName;
+  @HiveField(2) late int quantity;
+  @HiveField(3) late double unitPrice;
+  @HiveField(4) late double totalPrice;
+}
+
+// ────────────────────────────────
+// Box: 'chat_history' (TypeId: 6)
+// ────────────────────────────────
+@HiveType(typeId: 6)
+class ChatMessageModel extends HiveObject {
+  @HiveField(0) late String id;
+  @HiveField(1) late String text;
+  @HiveField(2) late bool isUser;
+  @HiveField(3) String? provider;
+  @HiveField(4) String? tier;
+  @HiveField(5) double cost = 0.0;
+  @HiveField(6) int latencyMs = 0;
+  @HiveField(7) int fallbacksAttempted = 0;
+  @HiveField(8) late DateTime timestamp;
+  @HiveField(9) List<String>? failedProviders;
+}
+
+// ────────────────────────────────
+// Box: 'ai_logs' (TypeId: 7)
+// ────────────────────────────────
+@HiveType(typeId: 7)
+class AICallLogModel extends HiveObject {
+  @HiveField(0) late String id;
+  @HiveField(1) late String provider;
+  @HiveField(2) late String tier;
+  @HiveField(3) late bool success;
+  @HiveField(4) late int latencyMs;
+  @HiveField(5) late double cost;
+  @HiveField(6) String? errorMessage;
+  @HiveField(7) late List<String> failedProviders;
+  @HiveField(8) late DateTime timestamp;
+  @HiveField(9) late String requestType;
+}
+
+// ────────────────────────────────
+// Box: 'forecasts' (TypeId: 8)
+// ────────────────────────────────
+@HiveType(typeId: 8)
+class ForecastModel extends HiveObject {
+  @HiveField(0) late String productId;
+  @HiveField(1) late List<double> predictedDemand;
+  @HiveField(2) late double confidence;
+  @HiveField(3) late String recommendation;
+  @HiveField(4) late String trendDirection;   // 'UP','DOWN','STABLE'
+  @HiveField(5) late DateTime generatedAt;
+  @HiveField(6) late String generatedBy;
+}
+
+// ────────────────────────────────
+// Box: 'anomalies' (TypeId: 9)
+// ────────────────────────────────
+@HiveType(typeId: 9)
+class AnomalyModel extends HiveObject {
+  @HiveField(0) late String id;
+  @HiveField(1) late String type;
+  @HiveField(2) late String severity;
+  @HiveField(3) late String title;
+  @HiveField(4) late String description;
+  @HiveField(5) String? productId;
+  @HiveField(6) late String aiExplanation;
+  @HiveField(7) bool isResolved = false;
+  @HiveField(8) late DateTime detectedAt;
+  @HiveField(9) DateTime? resolvedAt;
+}
+
+// ────────────────────────────────
+// Box: 'settings' (TypeId: 10)
+// ────────────────────────────────
+@HiveType(typeId: 10)
+class AppSettingsModel extends HiveObject {
+  @HiveField(0) String businessName = 'My Business';
+  @HiveField(1) String currency = '₹';
+  @HiveField(2) String currencyCode = 'INR';
+  @HiveField(3) double dailyCostLimit = 1.0;
+  @HiveField(4) bool enablePaidFallback = true;
+  @HiveField(5) bool enableVoice = true;
+  @HiveField(6) bool enableNotifications = true;
+  @HiveField(7) String themeMode = 'dark';
+  @HiveField(8) int defaultLowStockThreshold = 10;
+  @HiveField(9) bool isDemoMode = false;
+  @HiveField(10) String language = 'en';
+  @HiveField(11) bool isFirstLaunch = true;
+  @HiveField(12) bool isOnboardingComplete = false;
+}
+
+
+=============================================================
+AI FALLBACK ENGINE — EXACT IMPLEMENTATION
+=============================================================
+
+CRITICAL: This is the HEART of the app. Build it EXACTLY as
+specified. Every AI feature flows through this engine.
+
+─────────────────────────────────
+ENUMS & MODELS
+─────────────────────────────────
+
+enum ProviderTier { local, free, paid }
+enum CircuitState { closed, open, halfOpen }
+enum AIRequestType { chat, forecast, anomaly, categorize, report, negotiate }
+
+class AIRequest {
+  final String prompt;
+  final AIRequestType type;
+  final AIContext? context;
+  final double temperature;
+  final int maxTokens;
+  
+  AIRequest({
+    required this.prompt,
+    this.type = AIRequestType.chat,
+    this.context,
+    this.temperature = 0.7,
+    this.maxTokens = 1024,
+  });
+}
+
+class AIResponse {
+  final String text;
+  final String provider;
+  final ProviderTier tier;
+  final int tokensUsed;
+  final double cost;
+  final int latencyMs;
+  final bool success;
+  final int fallbacksAttempted;
+  final List<String> failedProviders;
+  final String? errorMessage;
+}
+
+class AIContext {
+  final String businessName;
+  final int totalProducts;
+  final int lowStockCount;
+  final int expiringCount;
+  final int todayMovements;
+  final double totalInventoryValue;
+  final String currency;
+  final List<Map<String, dynamic>>? relevantProducts;
+  
+  // Build from Hive data before each AI call
+  static Future<AIContext> buildFromHive() async {
+    // Read all boxes and compile context
+  }
+}
+
+
+─────────────────────────────────
+PROVIDER REGISTRY (YOUR EXACT 8 PROVIDERS)
+─────────────────────────────────
+
+Priority order (LOWER number = TRY FIRST):
+
+PRIORITY 1 — OLLAMA (Local):
+  name: 'ollama'
+  tier: ProviderTier.local
+  priority: 1
+  baseUrl: 'http://localhost:11434'
+  endpoint: '/api/chat'
+  model: 'llama3.1:8b'
+  timeout: 60 seconds
+  maxRetries: 1
+  rateLimit: 999/min (unlimited local)
+  cost: $0.00
+  apiKeyRequired: false
+  
+  REQUEST FORMAT:
+  POST http://localhost:11434/api/chat
+  Body: {
+    "model": "llama3.1:8b",
+    "messages": [
+      {"role": "system", "content": "<system_prompt>"},
+      {"role": "user", "content": "<user_message>"}
+    ],
+    "stream": false,
+    "options": {
+      "temperature": 0.7,
+      "num_predict": 1024
+    }
+  }
+  
+  RESPONSE: data['message']['content']
+  HEALTH CHECK: GET http://localhost:11434/api/tags
+
+──────────────
+
+PRIORITY 2 — GROQ (Free, Ultra-Fast):
+  name: 'groq'
+  tier: ProviderTier.free
+  priority: 2
+  baseUrl: 'https://api.groq.com/openai/v1'
+  endpoint: '/chat/completions'
+  model: 'llama-3.1-70b-versatile'
+  fallbackModel: 'mixtral-8x7b-32768'
+  timeout: 15 seconds
+  maxRetries: 2
+  rateLimit: 30/min
+  cost: $0.00
+  
+  REQUEST FORMAT (OpenAI-compatible):
+  POST https://api.groq.com/openai/v1/chat/completions
+  Headers: {
+    "Authorization": "Bearer <GROQ_API_KEY>",
+    "Content-Type": "application/json"
+  }
+  Body: {
+    "model": "llama-3.1-70b-versatile",
+    "messages": [
+      {"role": "system", "content": "<system_prompt>"},
+      {"role": "user", "content": "<user_message>"}
+    ],
+    "temperature": 0.7,
+    "max_tokens": 1024
+  }
+  
+  RESPONSE: data['choices'][0]['message']['content']
+  TOKENS: data['usage']['total_tokens']
+  ON 429: Rotate key → if no more keys, next provider
+
+──────────────
+
+PRIORITY 3 — OPENROUTER (Free Models):
+  name: 'openrouter'
+  tier: ProviderTier.free
+  priority: 3
+  baseUrl: 'https://openrouter.ai/api/v1'
+  endpoint: '/chat/completions'
+  model: 'meta-llama/llama-3.1-8b-instruct:free'
+  timeout: 20 seconds
+  maxRetries: 2
+  rateLimit: 10/min
+  cost: $0.00
+  
+  REQUEST FORMAT (OpenAI-compatible):
+  POST https://openrouter.ai/api/v1/chat/completions
+  Headers: {
+    "Authorization": "Bearer <OPENROUTER_API_KEY>",
+    "Content-Type": "application/json",
+    "HTTP-Referer": "https://invx.app",
+    "X-Title": "INV-X Inventory AI"
+  }
+  Body: {
+    "model": "meta-llama/llama-3.1-8b-instruct:free",
+    "messages": [...],
+    "temperature": 0.7,
+    "max_tokens": 1024
+  }
+  
+  RESPONSE: data['choices'][0]['message']['content']
+
+──────────────
+
+PRIORITY 4 — HUGGING FACE (Free Inference):
+  name: 'huggingface'
+  tier: ProviderTier.free
+  priority: 4
+  baseUrl: 'https://api-inference.huggingface.co'
+  endpoint: '/models/meta-llama/Meta-Llama-3.1-8B-Instruct'
+  timeout: 45 seconds (can be slow, model loading)
+  maxRetries: 2
+  rateLimit: 10/min
+  cost: $0.00
+  
+  REQUEST FORMAT:
+  POST https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3.1-8B-Instruct
+  Headers: {
+    "Authorization": "Bearer <HF_ACCESS_TOKEN>",
+    "Content-Type": "application/json"
+  }
+  Body: {
+    "inputs": "<system_prompt>\n\nUser: <user_message>\n\nAssistant:",
+    "parameters": {
+      "max_new_tokens": 1024,
+      "temperature": 0.7,
+      "return_full_text": false
+    }
+  }
+  
+  RESPONSE: data[0]['generated_text']
+  
+  SPECIAL HANDLING:
+  - If 503 (model loading): wait 20s, retry
+  - If response contains "is currently loading": retry after delay
+
+──────────────
+
+PRIORITY 5 — TOGETHER AI (Free Credits):
+  name: 'together'
+  tier: ProviderTier.free
+  priority: 5
+  baseUrl: 'https://api.together.xyz/v1'
+  endpoint: '/chat/completions'
+  model: 'meta-llama/Llama-3.1-8B-Instruct-Turbo'
+  timeout: 20 seconds
+  maxRetries: 1
+  rateLimit: 10/min
+  cost: $0.00 (free credits)
+  
+  REQUEST FORMAT (OpenAI-compatible):
+  POST https://api.together.xyz/v1/chat/completions
+  Headers: {
+    "Authorization": "Bearer <TOGETHER_API_KEY>",
+    "Content-Type": "application/json"
+  }
+  Body: {
+    "model": "meta-llama/Llama-3.1-8B-Instruct-Turbo",
+    "messages": [...],
+    "temperature": 0.7,
+    "max_tokens": 1024
+  }
+  
+  RESPONSE: data['choices'][0]['message']['content']
+
+──────────────
+
+PRIORITY 6 — COHERE (Free Tier):
+  name: 'cohere'
+  tier: ProviderTier.free
+  priority: 6
+  baseUrl: 'https://api.cohere.ai/v1'
+  endpoint: '/chat'
+  model: 'command-r-plus'
+  timeout: 25 seconds
+  maxRetries: 1
+  rateLimit: 5/min
+  cost: $0.00
+  
+  REQUEST FORMAT (Cohere-specific):
+  POST https://api.cohere.ai/v1/chat
+  Headers: {
+    "Authorization": "Bearer <COHERE_API_KEY>",
+    "Content-Type": "application/json"
+  }
+  Body: {
+    "model": "command-r-plus",
+    "message": "<user_message>",
+    "preamble": "<system_prompt>",
+    "temperature": 0.7,
+    "max_tokens": 1024
+  }
+  
+  RESPONSE: data['text']
+  
+  NOTE: Cohere uses 'message' not 'messages' array,
+        and 'preamble' not 'system' role.
+
+──────────────
+
+PRIORITY 7 — GOOGLE GEMINI (Paid — Cheap):
+  name: 'gemini'
+  tier: ProviderTier.paid  ← PAID
+  priority: 7
+  baseUrl: 'https://generativelanguage.googleapis.com/v1beta'
+  model: 'gemini-1.5-flash'          ← Use flash (cheapest)
+  fallbackModel: 'gemini-1.5-pro'    ← Use pro if flash fails
+  timeout: 25 seconds
+  maxRetries: 2
+  rateLimit: 60/min
+  cost: $0.075/1M input tokens (flash) — VERY CHEAP
+  
+  REQUEST FORMAT:
+  POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=<GOOGLE_API_KEY>
+  Headers: {
+    "Content-Type": "application/json"
+  }
+  Body: {
+    "contents": [{
+      "parts": [{
+        "text": "<system_prompt>\n\nUser: <user_message>"
+      }]
+    }],
+    "generationConfig": {
+      "temperature": 0.7,
+      "maxOutputTokens": 1024,
+      "topP": 0.95
+    }
+  }
+  
+  RESPONSE: data['candidates'][0]['content']['parts'][0]['text']
+  TOKENS: data['usageMetadata']['totalTokenCount']
+  COST CALC: (totalTokenCount / 1_000_000) * 0.075
+
+──────────────
+
+PRIORITY 8 — OPENAI ChatGPT (Paid — Last Resort):
+  name: 'openai'
+  tier: ProviderTier.paid  ← PAID
+  priority: 8
+  baseUrl: 'https://api.openai.com/v1'
+  endpoint: '/chat/completions'
+  model: 'gpt-4o-mini'               ← Use mini (cheapest)
+  fallbackModel: 'gpt-4o'            ← Use full if mini fails
+  timeout: 30 seconds
+  maxRetries: 2
+  rateLimit: 60/min
+  cost: $0.15/1M input tokens (mini)
+  
+  REQUEST FORMAT:
+  POST https://api.openai.com/v1/chat/completions
+  Headers: {
+    "Authorization": "Bearer <OPENAI_API_KEY>",
+    "Content-Type": "application/json"
+  }
+  Body: {
+    "model": "gpt-4o-mini",
+    "messages": [
+      {"role": "system", "content": "<system_prompt>"},
+      {"role": "user", "content": "<user_message>"}
+    ],
+    "temperature": 0.7,
+    "max_tokens": 1024
+  }
+  
+  RESPONSE: data['choices'][0]['message']['content']
+  TOKENS: data['usage']['total_tokens']
+  COST CALC: (total_tokens / 1_000_000) * 0.15
+
+
+─────────────────────────────────
+CIRCUIT BREAKER (Per Provider)
+─────────────────────────────────
+
+class CircuitBreaker {
+  String providerName;
+  CircuitState state = CircuitState.closed;
+  int failureCount = 0;
+  int failureThreshold = 3;
+  Duration resetTimeout = Duration(minutes: 5);
+  DateTime? lastFailureTime;
+  
+  bool canAttempt():
+    - if CLOSED → return true (healthy, allow request)
+    - if OPEN → check if resetTimeout passed
+      - if yes → set to HALF_OPEN, return true (test request)
+      - if no → return false (skip this provider)
+    - if HALF_OPEN → return true (allow test)
+  
+  void recordSuccess():
+    - failureCount = 0
+    - state = CLOSED
+  
+  void recordFailure():
+    - failureCount++
+    - lastFailureTime = now
+    - if failureCount >= threshold → state = OPEN
+}
+
+
+─────────────────────────────────
+RATE LIMITER (Per Provider)
+─────────────────────────────────
+
+class RateLimiter {
+  Map<String, List<DateTime>> timestamps = {};
+  
+  bool canMakeRequest(String provider, int maxPerMinute):
+    - Get timestamps for provider
+    - Remove entries older than 60 seconds
+    - Return timestamps.length < maxPerMinute
+  
+  void recordRequest(String provider):
+    - Add DateTime.now() to timestamps[provider]
+}
+
+
+─────────────────────────────────
+COST TRACKER
+─────────────────────────────────
+
+class CostTracker {
+  double totalCostToday = 0.0;
+  DateTime lastResetDate = today;
+  List<CostEntry> costHistory = [];
+  
+  void recordCost(String provider, double cost):
+    - Reset if new day
+    - Add to totalCostToday
+    - Save to costHistory
+  
+  bool canUsePaidProvider(double dailyLimit):
+    - return totalCostToday < dailyLimit
+  
+  Map<String, dynamic> getAnalytics():
+    - Total cost today/week/month
+    - Cost per provider
+    - Avg cost per request
+}
+
+
+─────────────────────────────────
+FALLBACK MANAGER (The Brain)
+─────────────────────────────────
+
+class AIFallbackManager {
+  List<BaseAIProvider> providers;  // 8 providers in order
+  Map<String, CircuitBreaker> circuitBreakers;
+  RateLimiter rateLimiter;
+  CostTracker costTracker;
+  AILogger logger;
+  
+  Future<AIResponse> getResponse(AIRequest request):
+    
+    List<String> errors = [];
+    Stopwatch stopwatch = Stopwatch()..start();
+    
+    FOR each provider in providers (ordered by priority):
+      
+      // CHECK 1: Circuit Breaker
+      if circuitBreaker is OPEN → skip, add to errors
+      
+      // CHECK 2: Rate Limit
+      if rate limited → try rotating key
+        if no more keys → skip, add to errors
+      
+      // CHECK 3: Cost Limit (paid only)
+      if provider.tier == PAID:
+        if costTracker.totalToday >= dailyLimit → skip
+        if settings.enablePaidFallback == false → skip
+        LOG WARNING: "⚠️ Using PAID provider: {name}"
+      
+      // ATTEMPT REQUEST
+      try:
+        LOG: "🔄 Trying {provider.name} (Tier: {tier})..."
+        
+        response = await attemptWithRetry(provider, request)
+        
+        circuitBreaker.recordSuccess()
+        rateLimiter.recordRequest()
+        costTracker.recordCost()
+        logger.logSuccess()
+        
+        LOG: "✅ {provider.name} succeeded ({latency}ms, ${cost})"
+        
+        return response with:
+          - provider name
+          - tier (local/free/paid)
+          - cost
+          - latency
+          - fallbacksAttempted count
+          - list of failed providers
+      
+      catch (error):
+        circuitBreaker.recordFailure()
+        errors.add("{provider.name}: {error}")
+        LOG: "❌ {provider.name} failed: {error}"
+        
+        // Special: On rate limit, try key rotation
+        if error is RateLimitError AND provider.hasMoreKeys:
+          provider.rotateKey()
+          try again once with new key
+        
+        continue to next provider
+    
+    // ALL 8 PROVIDERS FAILED
+    return AIResponse(
+      text: getOfflineFallbackResponse(request),
+      provider: 'offline',
+      tier: local,
+      success: false,
+      errorMessage: all errors joined
+    )
+
+
+─────────────────────────────────
+SYSTEM PROMPT (Used for ALL providers)
+─────────────────────────────────
+
+Build this dynamically before EACH AI call:
+
+"""
+You are INV-X, an advanced AI inventory management assistant.
+You help manage inventory, predict demand, detect anomalies,
+suggest optimizations, and generate reports.
+
+Business: {businessName}
+Currency: {currency}
+
+Current Inventory Status:
+- Total Products: {totalProducts}
+- Total Inventory Value: {currency}{totalValue}
+- Low Stock Items: {lowStockCount} products below minimum level
+- Expiring Soon (7 days): {expiringCount} products
+- Today's Stock Movements: {todayMovements}
+- Dead Stock (no movement 30+ days): {deadStockCount}
+
+{if relevantProducts provided}
+Relevant Product Data:
+{JSON of relevant products}
+{endif}
+
+Response Guidelines:
+1. Be concise, actionable, and specific
+2. Use bullet points and emojis for clarity
+3. Include specific numbers (quantities, prices, dates)
+4. When suggesting orders: include product name, quantity, estimated cost
+5. For forecasts: include confidence percentage
+6. Flag anomalies with severity: 🔴 CRITICAL, 🟠 HIGH, 🟡 MEDIUM, 🟢 LOW
+7. Format currency with {currency} symbol
+8. If data is insufficient, say so honestly
+9. Proactively suggest improvements
+10. Keep responses under 300 words unless asked for detailed analysis
+"""
+
+
+─────────────────────────────────
+AI ENGINE (Singleton — App Entry Point)
+─────────────────────────────────
+
+class InvXAIEngine {
+  static singleton instance
+  AIFallbackManager fallbackManager
+  
+  Methods:
+  
+  // Initialize on app startup
+  Future<void> initialize()
+  
+  // Main chat
+  Future<AIResponse> chat(String message, {AIContext? context})
+  
+  // Demand forecast for product
+  Future<AIResponse> forecastDemand(String productId, {int days = 30})
+  
+  // Analyze transaction for anomalies
+  Future<AIResponse> analyzeAnomaly(Map<String, dynamic> transactionData)
+  
+  // Auto-categorize product from name/description/image
+  Future<AIResponse> categorizeProduct(String description)
+  
+  // Generate business report
+  Future<AIResponse> generateReport(String reportType, Map<String, dynamic> data)
+  
+  // Suggest best supplier deal
+  Future<AIResponse> negotiateSupplier(String productId, int quantity)
+  
+  // Smart auto-fill from product name
+  Future<AIResponse> smartAutoFill(String productName)
+  
+  // Get provider health status
+  Future<List<ProviderHealth>> getProviderHealth()
+  
+  // Get cost analytics
+  CostAnalytics getCostAnalytics()
+  
+  // Get AI usage analytics
+  AIUsageAnalytics getUsageAnalytics()
+}
+
+
+─────────────────────────────────
+API KEYS MANAGER (Secure Storage)
+─────────────────────────────────
+
+Uses flutter_secure_storage to store ALL keys encrypted.
+
+class APIKeysManager {
+  FlutterSecureStorage storage;
+  
+  // Store keys (from Settings screen input)
+  Future<void> saveKey(String provider, String key)
+  Future<void> saveKeys(String provider, List<String> keys)
+  
+  // Retrieve keys
+  Future<List<String>> getKeys(String provider)
+  Future<String?> getKey(String provider)
+  
+  // Delete keys
+  Future<void> deleteKey(String provider, int index)
+  Future<void> deleteAllKeys(String provider)
+  
+  // Check if provider has keys configured
+  Future<bool> hasKeys(String provider)
+  
+  // Get all configured providers
+  Future<List<String>> getConfiguredProviders()
+  
+  // Mask key for display: "gsk_Xxxx...xxxx"
+  String maskKey(String key)
+  
+  PROVIDER KEY NAMES in secure storage:
+  - 'ollama_keys'     → ['no-key-needed']
+  - 'groq_keys'       → [user's key]
+  - 'openrouter_keys' → [user's key]
+  - 'huggingface_keys'→ [user's access token]
+  - 'together_keys'   → [user's key]
+  - 'cohere_keys'     → [user's key]
+  - 'gemini_keys'     → [user's key]     ← PAID
+  - 'openai_keys'     → [user's key]     ← PAID
+}
+
+─────────────────────────────────
+FIRST LAUNCH: API KEY SETUP SCREEN
+─────────────────────────────────
+
+When app launches for first time (isFirstLaunch == true):
+Show an onboarding flow:
+
+Page 1: "Welcome to INV-X" — animated logo, tagline
+Page 2: "Let's set up your AI" — explain the free tier
+Page 3: API Key Setup Screen:
+
+  ┌─────────────────────────────────────────┐
+  │  🤖 Set Up Your AI Providers            │
+  │                                         │
+  │  Add at least ONE key to enable AI.     │
+  │  All keys are encrypted on your device. │
+  │                                         │
+  │  🟢 FREE PROVIDERS (Recommended)        │
+  │  ┌─────────────────────────────────┐    │
+  │  │ ⚡ Groq (Fastest)               │    │
+  │  │ [________________________] [✓]  │    │
+  │  │ Get free key: console.groq.com  │    │
+  │  └─────────────────────────────────┘    │
+  │  ┌─────────────────────────────────┐    │
+  │  │ 🔀 OpenRouter                   │    │
+  │  │ [________________________] [✓]  │    │
+  │  │ Get free key: openrouter.ai     │    │
+  │  └─────────────────────────────────┘    │
+  │  ┌─────────────────────────────────┐    │
+  │  │ 🤗 HuggingFace                  │    │
+  │  │ [________________________] [✓]  │    │
+  │  │ Get token: huggingface.co       │    │
+  │  └─────────────────────────────────┘    │
+  │  ┌─────────────────────────────────┐    │
+  │  │ 🤝 Together AI                  │    │
+  │  │ [________________________] [✓]  │    │
+  │  └─────────────────────────────────┘    │
+  │  ┌─────────────────────────────────┐    │
+  │  │ 💬 Cohere                       │    │
+  │  │ [________________________] [✓]  │    │
+  │  └─────────────────────────────────┘    │
+  │                                         │
+  │  🟡 PAID PROVIDERS (Optional)           │
+  │  ┌─────────────────────────────────┐    │
+  │  │ 💎 Google Gemini                │    │
+  │  │ [________________________] [✓]  │    │
+  │  └─────────────────────────────────┘    │
+  │  ┌─────────────────────────────────┐    │
+  │  │ 🧠 OpenAI (ChatGPT)            │    │
+  │  │ [________________________] [✓]  │    │
+  │  └─────────────────────────────────┘    │
+  │                                         │
+  │  [Skip for now]     [Save & Continue →] │
+  └─────────────────────────────────────────┘
+
+Page 4: "You're all set!" → Go to Dashboard
+
+
+=============================================================
+SCREENS — DETAILED UI SPECIFICATIONS
+=============================================================
+
+THEME SPECIFICATION:
+  Background: #0A0A0F (near-black)
+  Surface: #12121A (dark card)
+  Card: Glassmorphism — #1A1A2E with 0.1 opacity, backdrop blur 10
+  Primary gradient: LinearGradient(#7C3AED → #2563EB) (purple→blue)
+  Secondary gradient: LinearGradient(#06B6D4 → #3B82F6) (cyan→blue)
+  Success: #10B981 (emerald)
+  Warning: #F59E0B (amber)
+  Error: #EF4444 (red)
+  Text primary: #F1F5F9
+  Text secondary: #94A3B8
+  Border: #1E293B with subtle glow
+  
+  Glassmorphism Card Widget:
+    Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        boxShadow: [BoxShadow(blurRadius: 20, color: primaryColor.withOpacity(0.1))],
+      ),
+      child: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: content,
+        ),
+      ),
+    )
+  
+  Neon Glow Effect (for important buttons):
+    BoxShadow(
+      color: primaryColor.withOpacity(0.4),
+      blurRadius: 20,
+      spreadRadius: 2,
+    )
+
+─────────────────────────────────
+SCREEN: SPLASH
+─────────────────────────────────
+- Dark background (#0A0A0F)
+- Center: INV-X logo (Text with gradient shader)
+- Below logo: Neural network / particle animation (custom painter)
+- Loading steps shown:
+  "Initializing AI Engine..."
+  "Loading inventory data..."
+  "Checking provider health..."
+  "Ready! ✅"
+- After 2-3 seconds: Navigate to Dashboard (or Onboarding if first launch)
+
+─────────────────────────────────
+SCREEN: DASHBOARD
+─────────────────────────────────
+
+AppBar:
+  - Left: "🏪 {businessName}" 
+  - Right: Notification bell (with badge count) + Profile avatar
+
+Body: SingleChildScrollView
+
+SECTION 1 — Stat Cards (Horizontal ScrollView):
+  4 glass cards, each showing:
+  - Icon (emoji in circle with glow)
+  - Label (small, secondary color)
+  - Value (large, animated counter, primary color)
+  - Trend arrow (▲ green or ▼ red) + percentage
+  
+  Cards:
+  [📦 Total Products: 847 ▲+12]
+  [💰 Stock Value: ₹24.5L ▲+₹1.2L]
+  [⚠️ Low Stock: 23 🔴]
+  [⏰ Expiring: 8 🟠]
+
+SECTION 2 — AI Insight Card:
+  Glass card with purple gradient left border
+  - "🤖 AI Insight" header with sparkle icon
+  - AI-generated text insight about current inventory
+  - Small badge: "via Groq • FREE • 234ms"
+  - Buttons: [🔄 Refresh] [💬 Ask More]
+  - Auto-generates on dashboard load (cached 5 min)
+
+SECTION 3 — Sales Chart:
+  Glass card with fl_chart LineChart
+  - Toggle tabs: [7D] [30D] [90D]
+  - Line with gradient fill below
+  - Touch to see data points
+  - Title: "Stock Movement Trends"
+
+SECTION 4 — Category Distribution:
+  Glass card with fl_chart PieChart
+  - Animated on appear
+  - Legend on right side
+  - Colors match category colors from DB
+
+SECTION 5 — Low Stock Alerts:
+  Glass card with list
+  - Title: "🚨 Needs Attention" with count badge
+  - Each item: product name, stock bar (red/orange), current/min stock
+  - "AI Auto-Order" button for each → creates purchase order
+  - "View All" link
+
+SECTION 6 — Expiring Soon:
+  Glass card with countdown timers
+  - Products sorted by expiry date (soonest first)
+  - Days remaining badge
+  - "Apply Discount" AI suggestion
+
+SECTION 7 — Recent Activity Timeline:
+  Glass card with vertical timeline
+  - Last 10 stock movements
+  - Icons: 📥 IN, 📤 OUT, 🔄 ADJUST, ↩️ RETURN
+  - Anomalous movements highlighted with red border
+  - Relative timestamps ("2h ago", "Yesterday")
+
+SECTION 8 — AI Provider Health (Compact):
+  Glass card, single row
+  - 8 small dots: 🟢🟢🟢🟢🟢🟢🟡🟢
+  - Label: "AI: 7/8 providers healthy"
+  - Tap → navigate to Provider Health screen
+  - Cost today: "$0.00"
+
+SECTION 9 — Quick Actions Grid (2 columns, 4 rows):
+  Each: Glass card with icon + label
+  [📦 Add Product]    [📸 Smart Scan]
+  [🤖 AI Chat]        [🔮 Forecast]
+  [📊 Reports]        [🚨 Anomalies]
+  [🤝 Suppliers]      [⚙️ Settings]
+
+BOTTOM NAVIGATION BAR:
+  Glassmorphism background
+  5 items:
+  [🏠 Home] [📦 Inventory] [🤖 AI] [📊 Reports] [⚙️ More]
+  Active: gradient icon + label
+  Inactive: grey icon, no label
+
+─────────────────────────────────
+SCREEN: INVENTORY LIST
+─────────────────────────────────
+
+AppBar: "📦 Inventory" + search icon + view toggle (list/grid)
+
+Below AppBar:
+  - Search bar (with voice input mic icon)
+  - Filter chips (horizontal scroll):
+    [All] [⚠️ Low Stock] [⏰ Expiring] [Electronics] [Groceries] ...
+  - Sort dropdown: Name | Stock ↑↓ | Price ↑↓ | Recent
+
+Body: ListView/GridView of products
+
+Product Card (List mode):
+  ┌──────────────────────────────────────┐
+  │  [IMG]  Product Name                 │
+  │         SKU: PRD-001                 │
+  │         ████████░░ 75/100 pcs        │ ← Stock bar (green)
+  │         ₹499  |  📁 Electronics      │
+  │         ⏰ Exp: 15 Mar 2026          │ ← Only if has expiry
+  └──────────────────────────────────────┘
+
+Product Card (Grid mode):
+  ┌─────────────────┐
+  │     [IMAGE]     │
+  │  Product Name   │
+  │  ████░░ 45 pcs  │
+  │  ₹1,299         │
+  │  ⚠️ Low Stock   │
+  └─────────────────┘
+
+Swipe left: Delete (with confirmation)
+Swipe right: Quick stock adjust (+ / - buttons)
+
+FAB: "+" with sub-options on press:
+  [✏️ Manual Add]
+  [📸 Smart Scan (AI)]
+  [📷 Barcode Scan]
+
+Empty state: Lottie animation of empty box
+  "No products yet. Tap + to add your first product!"
+
+─────────────────────────────────
+SCREEN: ADD / EDIT PRODUCT
+─────────────────────────────────
+
+AppBar: "Add Product" / "Edit Product"
+  Action: [🤖 AI Auto-Fill] button
+
+Body: Form in sections (ExpansionTile or Stepper)
+
+Section 1 — Basic Info:
+  - Product Name * (TextField)
+  - Description (TextField, multiline)
+  - SKU * (auto-generated, editable) — format: "PRD-XXXXX"
+  - Barcode (TextField + scan button 📸)
+  - Category * (Dropdown + "Add New" option)
+  - Image (Camera / Gallery / Remove)
+
+Section 2 — Pricing:
+  - Cost Price * (₹)
+  - Selling Price * (₹)
+  - Profit Margin: auto-calculated, shown as colored badge
+    Green: > 20%, Yellow: 10-20%, Red: < 10%
+  - Tax % (optional)
+
+Section 3 — Stock:
+  - Current Stock * (number input with + / - buttons)
+  - Minimum Stock * (reorder point)
+  - Maximum Stock *
+  - Unit * (dropdown: pcs, kg, liters, boxes, meters, dozen)
+
+Section 4 — Details:
+  - Supplier (dropdown from suppliers list)
+  - Expiry Date (date picker, optional)
+  - Batch Number (optional)
+  - Warehouse Location (optional, text: "Aisle 3, Shelf B")
+  - Tags (chip input — type and press enter)
+  - Weight (optional, number + unit)
+
+Section 5 — AI Features:
+  [🤖 Auto-Fill with AI] button:
+    - Takes product name → sends to AI
+    - AI returns: description, category, tags, suggested price range
+    - Shows preview → user approves/edits each field
+    - Badge: "Filled by Groq • FREE"
+  
+  [📸 Smart Scan] button:
+    - Opens camera
+    - OCR reads product label
+    - AI categorizes and fills fields
+    - User confirms
+
+Bottom: [Cancel] [Save Product] buttons
+  Save with validation → success animation → navigate back
+
+─────────────────────────────────
+SCREEN: PRODUCT DETAIL
+─────────────────────────────────
+
+Hero image at top (with parallax scroll effect)
+
+Below image:
+  - Product name (large)
+  - SKU badge + Category badge + Status badge
+  - Price: Cost ₹X → Sell ₹Y (Margin: Z%)
+
+Tab bar: [Overview] [Stock History] [AI Insights]
+
+TAB 1 — Overview:
+  - All product details in organized cards
+  - Stock level visualization (circular progress)
+  - Supplier info (if linked)
+  - Warehouse location
+  - Tags
+  - Quick actions: [Adjust Stock] [Edit] [Delete]
+
+TAB 2 — Stock History:
+  - Timeline of all stock movements for this product
+  - Mini line chart showing stock level over time
+  - Filter: All / IN / OUT / Adjustments
+
+TAB 3 — AI Insights:
+  - 🔮 Demand Forecast (mini chart + recommendation)
+  - 💡 AI Recommendation (generated on demand)
+  - 🤝 Best Supplier suggestion
+  - 📊 Sales velocity analysis
+  - Each section has "Generate" button
+  - Shows provider + cost for each
+
+Action buttons at bottom:
+  [📝 Edit] [📦 Adjust Stock] [🛒 Order More] [🗑️ Delete]
+
+─────────────────────────────────
+SCREEN: AI CHAT (Full Feature)
+─────────────────────────────────
+
+AppBar:
+  Left: "🤖 INV-X Assistant"
+  Right: Provider health dot (🟢/🟡/🔴) + Clear chat button
+
+Body:
+
+Top: Quick Action Chips (horizontal scroll):
+  [📦 Stock Summary] [📈 Sales Forecast] [⚠️ Low Stock]
+  [⏰ Expiring Soon] [💡 Suggestions] [🚨 Anomalies]
+  [📊 Today's Report] [🤝 Best Deals] [📋 Full Report]
+
+Chat Area: ListView (reversed, newest at bottom)
+
+User Bubble:
+  ┌──────────────────────────────┐
+  │  What products should I      │
+  │  restock this week?          │
+  │                    12:34 PM  │
+  └──────────────────────────────┘
+  Right-aligned, blue/purple gradient background
+
+AI Bubble:
+  ┌──────────────────────────────┐
+  │ 🟢 groq • 234ms • FREE      │ ← Provider badge
+  │──────────────────────────────│
+  │ Based on current stock       │
+  │ levels and sales trends:     │
+  │                              │
+  │ 🔴 Critical (restock NOW):  │
+  │ • Wireless Earbuds (5 left)  │
+  │ • USB-C Cable (3 left)       │
+  │                              │
+  │ 🟠 Restock this week:       │
+  │ • Phone Case (12 left)       │
+  │ • Screen Protector (8 left)  │
+  │                              │
+  │ 💰 Estimated order cost:     │
+  │ ₹24,500                      │
+  │                              │
+  │ [📦 Create Order] [📋 More]  │ ← Action buttons
+  │                    12:34 PM  │
+  └──────────────────────────────┘
+  Left-aligned, glass card background
+
+Provider Info Badge colors:
+  🟢 Green text: Local or Free provider
+  🟡 Yellow text: Paid provider
+  🔴 Red text: Failed / offline
+
+Typing Indicator:
+  Three bouncing dots animation in AI bubble style
+  Shows while waiting for AI response
+
+Input Area (bottom):
+  ┌──────────────────────────────────────┐
+  │ [🎤] [Type your message...    ] [➤] │
+  └──────────────────────────────────────┘
+  
+  Voice input: Hold mic → speech-to-text → auto-send
+  Send: Blue gradient button
+
+Provider Status Bar (above input, collapsible):
+  "🤖 Groq (Free) | 28/30 req remaining | Today: $0.00"
+
+Long-press on AI message: [Copy] [Regenerate] [Share]
+
+─────────────────────────────────
+SCREEN: DEMAND FORECAST
+─────────────────────────────────
+
+AppBar: "🔮 Demand Forecast"
+
+Top: Product selector
+  - Search dropdown to select product
+  - Or "Generate for all low-stock items"
+
+Main Chart: fl_chart LineChart
+  - Solid line: Historical data (last 30 days)
+  - Dashed line: Predicted data (next 30 days)
+  - Shaded area: Confidence band
+  - Touch for data points
+  - Animated draw-in on appear
+
+Stats Row:
+  [📈 Trend: UP ▲23%] [🎯 Confidence: 87%] [📅 Stockout: Mar 15]
+
+AI Recommendation Card:
+  Glass card with AI-generated text:
+  "Based on seasonal patterns and current velocity,
+   order 300 units by March 10 to avoid stockout.
+   Suggested supplier: TechParts India (₹145/unit).
+   Estimated order cost: ₹43,500."
+
+  [📦 Create Order] [🔄 Regenerate]
+  Provider badge: "🟢 groq • FREE"
+
+─────────────────────────────────
+SCREEN: ANOMALY DETECTION
+─────────────────────────────────
+
+AppBar: "🚨 Anomalies" + count badge
+
+Top: [Scan for New Anomalies] button (gradient, with AI sparkle)
+
+Filter tabs: [All] [🔴 Critical] [🟠 High] [🟡 Medium] [✅ Resolved]
+
+Anomaly Cards:
+  ┌──────────────────────────────────────┐
+  │ 🔴 CRITICAL — Possible Theft         │
+  │──────────────────────────────────────│
+  │ 50 units of "iPhone 15 Case"         │
+  │ disappeared without any recorded     │
+  │ sales or adjustments.                │
+  │                                      │
+  │ 🤖 AI Analysis:                      │
+  │ "Stock dropped from 80 to 30 units   │
+  │ between 2pm-4pm on March 5. No POS   │
+  │ transactions recorded. Check CCTV    │
+  │ footage for Aisle 3, Shelf B."       │
+  │                                      │
+  │ Detected: 2 hours ago                │
+  │ [🔍 Investigate] [✅ Resolve] [❌ Dismiss]│
+  └──────────────────────────────────────┘
+
+─────────────────────────────────
+SCREEN: SUPPLIERS
+─────────────────────────────────
+
+List of suppliers with:
+  - Name, contact info
+  - Reliability score (★★★★☆ 4.2)
+  - Products supplied count
+  - Avg delivery time
+  - Last order date
+
+AI Negotiate Screen:
+  - Select product + quantity
+  - AI compares all suppliers
+  - Shows comparison table:
+    | Supplier | Price | Delivery | Score | Total |
+  - Highlights "Best Deal" with green border
+  - Shows savings: "Save ₹2,400 vs. worst option"
+  - [Generate Purchase Order] button
+
+─────────────────────────────────
+SCREEN: REPORTS
+─────────────────────────────────
+
+Reports Hub: Grid of report types
+  [📊 Inventory Summary]  [📈 Stock Movements]
+  [⏰ Expiry Report]      [💀 Dead Stock]
+  [🤝 Supplier Report]    [🤖 AI Usage & Cost]
+  [📋 AI Business Report]
+
+Each report screen:
+  - Beautiful charts (fl_chart)
+  - Key metrics at top (KPI cards)
+  - Detailed data table below
+  - Export options: [📄 PDF] [📊 Excel] [📤 Share]
+
+AI Business Report (special):
+  - [Generate Report] button
+  - AI analyzes ALL inventory data
+  - Produces comprehensive written report with:
+    - Executive summary
+    - Key metrics
+    - Top performing products
+    - Concerns and risks
+    - Recommendations
+    - Action items
+  - Export as PDF with branding
+  - Provider + cost shown
+
+─────────────────────────────────
+SCREEN: AI SETTINGS & PROVIDER HEALTH
+─────────────────────────────────
+
+Section 1: API Keys Management
+  For each provider (grouped: LOCAL → FREE → PAID):
+  
+  ┌──────────────────────────────────────┐
+  │ ⚡ Groq                    [Toggle]  │
+  │──────────────────────────────────────│
+  │ Tier: FREE | Rate: 30/min           │
+  │ Status: 🟢 Healthy                  │
+  │ Circuit: CLOSED ✅                   │
+  │                                      │
+  │ Key 1: gsk_Xxxx...xxxx    [🗑️]     │
+  │ [+ Add Another Key]                 │
+  │                                      │
+  │ [🔄 Test Connection]                │
+  └──────────────────────────────────────┘
+
+Section 2: Cost Management
+  - Daily limit slider: $0 — $10
+  - Toggle: "Enable Paid Fallback"
+  - Today's cost: $0.00 (with progress bar to limit)
+  - This month's cost chart (bar chart, per day)
+
+Section 3: Provider Health Dashboard
+  Real-time status table:
+  | Provider    | Tier  | Status | Circuit | Calls | Avg ms |
+  | Ollama      | LOCAL | 🟢    | ✅      | 45    | 1200   |
+  | Groq        | FREE  | 🟢    | ✅      | 89    | 245    |
+  | OpenRouter  | FREE  | 🟡    | ⚠️      | 12    | 890    |
+  | HuggingFace | FREE  | 🟢    | ✅      | 34    | 2100   |
+  | Together    | FREE  | 🟢    | ✅      | 23    | 456    |
+  | Cohere      | FREE  | 🔴    | 🔴      | 5     | -      |
+  | Gemini      | PAID  | 🟢    | ✅      | 2     | 670    |
+  | OpenAI      | PAID  | 🟢    | ✅      | 0     | -      |
+
+  Provider Usage Pie Chart: Which providers handle most requests
+  Response Time Chart: Average latency per provider
+  Success Rate Chart: Per provider
+
+Section 4: AI Behavior
+  - Temperature slider (0.0 — 1.0)
+  - Max response length slider
+  - Custom system prompt (advanced, expandable)
+
+
+─────────────────────────────────
+SCREEN: BARCODE SCANNER
+─────────────────────────────────
+
+Full-screen camera with scan overlay
+  - Rectangular scan zone in center
+  - Animated scanning line
+  - Sound + haptic on successful scan
+
+On scan:
+  - Search product by barcode in Hive
+  - If found: Bottom sheet with product card + quick adjust buttons
+  - If not found: "Product not found. Add new?" → navigate to Add Product with barcode pre-filled
+
+Batch scan mode toggle:
+  - Scan multiple products continuously
+  - List builds at bottom
+  - Great for stock-taking
+
+─────────────────────────────────
+SCREEN: SMART SCAN (AI-Powered)
+─────────────────────────────────
+
+Camera capture screen
+  - Take photo of product
+  - On-device OCR (google_ml_kit) reads text from image
+  - Send extracted text to AI for:
+    - Product name extraction
+    - Category classification
+    - Description generation
+    - Tag suggestions
+    - Price suggestion
+  
+Result Preview:
+  ┌──────────────────────────────────────┐
+  │ 📸 AI detected:                      │
+  │                                      │
+  │ Name: Samsung Galaxy Buds FE         │ ✏️
+  │ Category: Electronics > Audio        │ ✏️
+  │ Description: "Wireless earbuds..."   │ ✏️
+  │ Tags: wireless, samsung, audio       │ ✏️
+  │ Suggested Price: ₹2,999 - ₹3,499    │ ✏️
+  │                                      │
+  │ 🤖 Filled by: groq • FREE           │
+  │                                      │
+  │ [❌ Retake] [✏️ Edit] [✅ Save]      │
+  └──────────────────────────────────────┘
+
+─────────────────────────────────
+SCREEN: WAREHOUSE VIEW
+─────────────────────────────────
+
+2D Grid visualization (simpler than 3D, more practical):
+  - Grid of cells representing warehouse zones/shelves
+  - Each cell colored by stock health:
+    🟢 Green: > 50% capacity
+    🟡 Yellow: 25-50% capacity
+    🔴 Red: < 25% capacity
+    ⚫ Gray: Empty/unused
+  - Tap cell → show products in that location
+  - Legend at bottom
+  - Heatmap toggle: Show activity intensity
+
+Location label format: "A3-B2" (Aisle 3, Shelf B, Row 2)
+
+─────────────────────────────────
+SCREEN: SETTINGS
+─────────────────────────────────
+
+Sections:
+1. Business Settings
+   - Business name
+   - Currency selection
+   - Default low stock threshold
+
+2. AI Configuration → navigate to AI Settings screen
+
+3. Appearance
+   - Theme: Dark / Light / System
+   - Language selection
+
+4. Data Management
+   - Backup to file (JSON export)
+   - Restore from file
+   - Clear all data (with confirmation)
+   - Demo mode toggle
+
+5. Notifications
+   - Enable/disable
+   - Low stock alerts
+   - Expiry alerts
+   - AI suggestions
+
+6. About
+   - App version
+   - Tech stack info
+   - AI providers info
+   - Developer info
+
+
+=============================================================
+SEED DATA GENERATOR
+=============================================================
+
+On first launch OR when Demo Mode is toggled ON,
+generate this sample data:
+
+CATEGORIES (8):
+  📱 Electronics (#3B82F6)
+  🥫 Groceries (#10B981)
+  👕 Clothing (#8B5CF6)
+  ✏️ Stationery (#F59E0B)
+  🏠 Home & Kitchen (#EC4899)
+  💊 Health & Beauty (#06B6D4)
+  🔧 Tools & Hardware (#EF4444)
+  🎮 Gaming & Toys (#F97316)
+
+PRODUCTS (50+ across all categories):
+
+Electronics (10 products):
+  - iPhone 15 Case (Transparent)     | ₹299/₹599    | Stock: 45/10/200
+  - Samsung 65W Charger              | ₹890/₹1,499  | Stock: 23/15/100
+  - USB-C to Lightning Cable 1m      | ₹199/₹449    | Stock: 67/20/200
+  - Wireless Earbuds (TWS Pro)       | ₹599/₹1,299  | Stock: 8/15/100  ← LOW
+  - Laptop Stand (Aluminum)          | ₹1,200/₹2,499| Stock: 34/10/80
+  - Screen Protector (Tempered)      | ₹89/₹199     | Stock: 156/30/500
+  - Bluetooth Speaker (Mini)         | ₹450/₹999    | Stock: 5/10/50   ← LOW
+  - Power Bank 20000mAh             | ₹800/₹1,599  | Stock: 42/15/100
+  - HDMI Cable 2m                    | ₹149/₹349    | Stock: 78/20/200
+  - Webcam 1080p                     | ₹1,100/₹2,199| Stock: 19/10/60
+
+Groceries (10 products):
+  - Basmati Rice 5kg                 | ₹320/₹499    | Stock: 89/20/200  | Exp: +45d
+  - Refined Sunflower Oil 1L         | ₹145/₹189    | Stock: 4/15/100   ← LOW | Exp: +90d
+  - Tata Salt 1kg                    | ₹22/₹28      | Stock: 234/50/500 | Exp: +365d
+  - Red Label Tea 500g               | ₹215/₹289    | Stock: 56/20/150  | Exp: +180d
+  - Maggi Noodles (Pack of 12)       | ₹120/₹168    | Stock: 45/30/200  | Exp: +120d
+  - Amul Butter 500g                 | ₹255/₹290    | Stock: 12/10/50   | Exp: +5d  ← EXPIRING!
+  - Aashirvaad Atta 10kg             | ₹380/₹475    | Stock: 67/15/100  | Exp: +60d
+  - Kissan Mixed Fruit Jam 500g      | ₹135/₹175    | Stock: 3/10/80    ← LOW | Exp: +3d ← EXPIRING!
+  - Parle-G Biscuits (Pack of 24)    | ₹168/₹240    | Stock: 98/25/200  | Exp: +90d
+  - Nescafe Classic 200g             | ₹350/₹449    | Stock: 34/10/80   | Exp: +240d
+
+Clothing (8 products):
+  - Men's Cotton T-Shirt (M)         | ₹199/₹499    | Stock: 67/20/200
+  - Women's Kurti (L)                | ₹350/₹799    | Stock: 34/15/100
+  - Denim Jeans (32)                 | ₹600/₹1,299  | Stock: 23/10/80
+  - Sports Shoes (Size 9)            | ₹800/₹1,999  | Stock: 12/8/50
+  - Cotton Socks (3-Pack)            | ₹89/₹199     | Stock: 145/30/300
+  - Winter Jacket (XL)               | ₹1,200/₹2,999| Stock: 2/5/40    ← LOW
+  - Formal Shirt (M)                 | ₹450/₹999    | Stock: 56/15/100
+  - Scarf (Woolen)                   | ₹180/₹399    | Stock: 78/20/150
+
+Stationery (6 products):
+  - Ball Pen (Pack of 10)            | ₹45/₹99      | Stock: 234/50/500
+  - A4 Notebook 200 pages            | ₹65/₹129     | Stock: 178/30/300
+  - Whiteboard Marker Set (4)        | ₹120/₹199    | Stock: 45/15/100
+  - Sticky Notes (Neon, 400 sheets)  | ₹85/₹149     | Stock: 67/20/200
+  - Stapler + Pins Set               | ₹95/₹179     | Stock: 34/10/80
+  - Art Color Pencils (24 set)       | ₹150/₹299    | Stock: 89/15/150
+
+Home & Kitchen (6 products):
+  - Stainless Steel Water Bottle 1L  | ₹250/₹599    | Stock: 45/10/100
+  - Non-Stick Frying Pan 24cm        | ₹400/₹899    | Stock: 23/8/60
+  - Glass Storage Container Set (3)  | ₹350/₹699    | Stock: 34/10/80
+  - LED Desk Lamp                    | ₹300/₹699    | Stock: 7/10/50   ← LOW
+  - Cotton Bath Towel Set (2)        | ₹280/₹599    | Stock: 56/15/100
+  - Pressure Cooker 3L               | ₹800/₹1,499  | Stock: 19/8/40
+
+Health & Beauty (5 products):
+  - Dove Shampoo 340ml               | ₹215/₹299    | Stock: 67/15/100  | Exp: +180d
+  - Nivea Body Lotion 200ml          | ₹180/₹249    | Stock: 45/12/80   | Exp: +365d
+  - Colgate Toothpaste 150g          | ₹85/₹110     | Stock: 123/25/200 | Exp: +240d
+  - Dettol Hand Wash 200ml           | ₹65/₹89      | Stock: 89/20/150  | Exp: +180d
+  - Paracetamol 500mg (Strip of 10)  | ₹12/₹18      | Stock: 234/50/500 | Exp: +2d  ← EXPIRING!
+
+Tools (3 products):
+  - Screwdriver Set (6-piece)        | ₹180/₹349    | Stock: 34/8/60
+  - Measuring Tape 5m                | ₹85/₹159     | Stock: 56/12/100
+  - Electrical Tape (3-Pack)         | ₹45/₹89      | Stock: 89/20/200
+
+Gaming (2 products):
+  - Gaming Mouse (RGB)               | ₹350/₹799    | Stock: 23/8/50
+  - PS5 Controller (Black)           | ₹3,200/₹5,499| Stock: 4/5/20    ← LOW
+
+SUPPLIERS (8):
+  1. TechParts India Pvt Ltd    | tech@parts.in     | 9876543210 | Score: 4.5 | 3 days
+  2. FreshMart Wholesale        | orders@freshmart.in| 9876543211 | Score: 4.2 | 2 days
+  3. FashionHub Distributors    | sales@fashionhub.in| 9876543212 | Score: 3.8 | 5 days
+  4. OfficePro Supplies         | office@pro.in      | 9876543213 | Score: 4.7 | 1 day
+  5. HomeNeeds Trading Co       | home@needs.in      | 9876543214 | Score: 4.0 | 4 days
+  6. MedPlus Distributors       | med@plus.in        | 9876543215 | Score: 4.6 | 2 days
+  7. BuildRight Hardware        | build@right.in     | 9876543216 | Score: 3.9 | 3 days
+  8. GameZone Wholesale         | games@zone.in      | 9876543217 | Score: 4.1 | 4 days
+
+STOCK MOVEMENTS (generate 200+ for last 30 days):
+  - Random IN/OUT movements for all products
+  - Some anomalous ones (big drops without sales)
+  - Realistic patterns (more sales on weekends)
+
+SAMPLE ANOMALIES (5):
+  1. 🔴 CRITICAL: 50 units of "Wireless Earbuds" missing (no sales)
+  2. 🟠 HIGH: Unusual return pattern — 15 returns of "Phone Case" in 1 day
+  3. 🟡 MEDIUM: Stock count mismatch for "Basmati Rice" (system: 89, physical: 85)
+  4. 🟡 MEDIUM: "USB-C Cable" selling 3x normal rate (possible pricing error)
+  5. 🟢 LOW: Supplier "FashionHub" delivery took 8 days (usually 5)
+
+SAMPLE FORECASTS (5 products):
+  - Generate realistic 30-day forecasts with confidence scores
+
+SAMPLE CHAT HISTORY (5 conversations):
+  User: "What's my inventory health?"
+  AI: [comprehensive response with stats]
+  
+  User: "Which products should I restock?"
+  AI: [response with specific products and quantities]
+  
+  ... etc.
+
+
+=============================================================
+RIVERPOD PROVIDERS (COMPLETE LIST)
+=============================================================
+
+// ── Core ──
+final aiEngineProvider = Provider<InvXAIEngine>((ref) => InvXAIEngine());
+final settingsProvider = StateNotifierProvider<SettingsNotifier, AppSettingsModel>(...);
+
+// ── Inventory ──
+final allProductsProvider = StateNotifierProvider<ProductsNotifier, List<ProductModel>>(...);
+final productByIdProvider = Provider.family<ProductModel?, String>(...);
+final searchQueryProvider = StateProvider<String>((ref) => '');
+final searchResultsProvider = Provider<List<ProductModel>>(...);
+final activeCategoryFilterProvider = StateProvider<String?>((ref) => null);
+final sortOptionProvider = StateProvider<SortOption>((ref) => SortOption.name);
+final filteredProductsProvider = Provider<List<ProductModel>>(...);
+final lowStockProductsProvider = Provider<List<ProductModel>>(...);
+final expiringProductsProvider = Provider<List<ProductModel>>(...);
+final expiredProductsProvider = Provider<List<ProductModel>>(...);
+final productCountProvider = Provider<int>(...);
+final totalInventoryValueProvider = Provider<double>(...);
+
+// ── Categories ──
+final categoriesProvider = StateNotifierProvider<CategoriesNotifier, List<CategoryModel>>(...);
+final categoryByIdProvider = Provider.family<CategoryModel?, String>(...);
+final categoryProductCountProvider = Provider.family<int, String>(...);
+
+// ── Suppliers ──
+final suppliersProvider = StateNotifierProvider<SuppliersNotifier, List<SupplierModel>>(...);
+final supplierByIdProvider = Provider.family<SupplierModel?, String>(...);
+
+// ── Orders ──
+final ordersProvider = StateNotifierProvider<OrdersNotifier, List<PurchaseOrderModel>>(...);
+final pendingOrdersProvider = Provider<List<PurchaseOrderModel>>(...);
+
+// ── Stock Movements ──
+final allMovementsProvider = StateNotifierProvider<MovementsNotifier, List<StockMovementModel>>(...);
+final productMovementsProvider = Provider.family<List<StockMovementModel>, String>(...);
+final todayMovementsProvider = Provider<List<StockMovementModel>>(...);
+
+// ── Dashboard ──
+final dashboardStatsProvider = Provider<DashboardStats>(...);
+final aiInsightProvider = FutureProvider<AIResponse>(...);
+final salesChartDataProvider = Provider.family<List<ChartData>, int>(...); // days
+
+// ── AI Chat ──
+final chatMessagesProvider = StateNotifierProvider<ChatNotifier, List<ChatMessageModel>>(...);
+final isChatLoadingProvider = StateProvider<bool>((ref) => false);
+
+// ── AI Forecast ──
+final forecastProvider = FutureProvider.family<ForecastModel?, String>(...);
+
+// ── AI Anomaly ──
+final anomaliesProvider = StateNotifierProvider<AnomalyNotifier, List<AnomalyModel>>(...);
+final unresolvedAnomaliesProvider = Provider<List<AnomalyModel>>(...);
+
+// ── AI Health ──
+final providerHealthProvider = FutureProvider<List<ProviderHealth>>(...);
+final aiAnalyticsProvider = Provider<Map<String, dynamic>>(...);
+final aiCostTodayProvider = Provider<double>(...);
+
+// ── Reports ──
+final reportDataProvider = FutureProvider.family<ReportData, ReportType>(...);
+
+// ── Navigation ──
+final currentTabProvider = StateProvider<int>((ref) => 0);
+
+
+=============================================================
+IMPLEMENTATION RULES (CRITICAL)
+=============================================================
+
+1. ALL API keys stored in flutter_secure_storage — NEVER in code
+2. ALL AI calls go through InvXAIEngine singleton
+3. ALWAYS build AIContext from Hive before AI calls
+4. Show provider + tier + cost in EVERY AI response UI
+5. Handle ALL errors gracefully with beautiful UI
+6. Every screen: loading state, empty state, error state
+7. Use flutter_animate for stagger animations on lists
+8. Glassmorphism on ALL cards (glass_card widget)
+9. Gradient on primary actions (buttons, FABs, nav items)
+10. Sound/haptic feedback on key actions
+11. Demo mode with seed data (no API keys needed)
+12. Works 100% offline for core CRUD
+13. Cache AI responses for 5 minutes
+14. Clean up AI logs older than 30 days
+15. Rate limit warnings before hitting limits
+16. Cost warnings before using paid providers
+17. Smooth 60fps animations throughout
+
+
+=============================================================
+pubspec.yaml DEPENDENCIES
+=============================================================
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  
+  # Navigation
+  go_router: ^14.2.0
+  
+  # Storage
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  flutter_secure_storage: ^9.2.2
+  path_provider: ^2.1.3
+  
+  # Networking
+  dio: ^5.5.0+1
+  
+  # UI
+  fl_chart: ^0.68.0
+  flutter_animate: ^4.5.0
+  lottie: ^3.1.2
+  shimmer: ^3.0.0
+  cached_network_image: ^3.3.1
+  flutter_staggered_animations: ^1.1.1
+  
+  # Camera & Scanner
+  mobile_scanner: ^5.1.1
+  camera: ^0.11.0+1
+  google_mlkit_text_recognition: ^0.12.0
+  
+  # Voice
+  speech_to_text: ^6.6.2
+  flutter_tts: ^4.0.2
+  
+  # PDF & Excel
+  pdf: ^3.11.0
+  printing: ^5.12.0
+  excel: ^4.0.6
+  
+  # Utils
+  uuid: ^4.4.2
+  intl: ^0.19.0
+  share_plus: ^9.0.0
+  url_launcher: ^6.3.0
+  permission_handler: ^11.3.1
+  connectivity_plus: ^6.0.3
+  
+  # Icons
+  phosphor_flutter: ^2.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.4.11
+  hive_generator: ^2.0.1
+  riverpod_generator: ^2.4.0
+  custom_lint: ^0.6.4
+  riverpod_lint: ^2.3.10
+
+
+=============================================================
+NOW BUILD THIS COMPLETE APP
+=============================================================
+
+Generate ALL files, one by one, starting with:
+
+1. pubspec.yaml
+2. main.dart + app.dart + bootstrap.dart
+3. Core theme (app_theme, app_colors, app_decorations)
+4. Core widgets (glass_card, neon_button, animated_counter, etc.)
+5. Hive models (ALL 11 models with adapters)
+6. Hive initializer + Seed data generator
+7. AI Engine (COMPLETE — all 8 providers + fallback manager)
+8. API Keys Manager (secure storage)
+9. Router (go_router with all routes)
+10. Riverpod providers (ALL)
+11. Dashboard screen (with all widgets)
+12. Inventory screens (list, add, edit, detail)
+13. AI Chat screen (full feature)
+14. Forecast screen
+15. Anomaly screen
+16. Supplier screens
+17. Order screens
+18. Report screens
+19. Scanner screens
+20. Warehouse view
+21. Settings screens (including AI config)
+22. Onboarding flow
+
+Make it PRODUCTION-QUALITY code. Make it look like a
+₹50,00,000 app. Every screen BEAUTIFUL. Every interaction
+SMOOTH. The AI fallback BULLETPROOF.
+
+THIS APP SHOULD MAKE PEOPLE SAY:
+"WHAT?! YOU BUILT THIS?!" 🤯
